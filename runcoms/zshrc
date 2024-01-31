@@ -10,6 +10,7 @@ fi
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
+
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
@@ -19,6 +20,19 @@ fi
 
 
 export GITHUB_USERNAME="TanakritBenz" # https://help.github.com/articles/remembering-your-github-username-or-email
+
+## Bug fix: Tab and window title not updated after logging out of SSH remote session
+# xterm titlebar
+TITLEBAR=$(printf '\033]0;')
+BELL=$(printf '\007')
+# set prompt
+case $TERM in
+    # xterm and variants, set the titlebar 
+    xterm*) PS1='${TITLEBAR}[\u@\h]${BELL}\h \$ ' ;;                                                                    
+
+    # anything else, don't try to set the titlebar
+    *) PS1='\u@\h \$ ' ;;                                                                                         
+esac
 
 
 export PATH=$HOME/bin:$PATH
@@ -31,6 +45,8 @@ export GOROOT="$(brew --prefix golang)/libexec"
 export PATH=$PATH:$GOPATH/bin
 export PATH=$PATH:$GOROOT/bin
 
+## Flutter
+export PATH=$PATH:$HOME/flutter/bin
 
 ## Initialize rbenv
 eval "$(rbenv init -)"
@@ -161,7 +177,7 @@ function g_squash () {
 ##            Instacart stuff            ##
 ###########################################
 cdapp() {
-  cd ~/carrot
+  cd ~/bento-remote-carrot
   cd `find . -name .isc|rev|cut -d/ -f 2-|rev|grep "$1\$"`
 }
 kill_v3() { ## Kill v3 rails server
@@ -170,17 +186,17 @@ kill_v3() { ## Kill v3 rails server
 kill_v4() { ## Kill v4 rails server
   lsof -n -i :3030 | grep -E 'ruby.*LISTEN' | awk '{print $2}' | xargs kill -9
 }
-alias carrot="cd ~/carrot"
-alias instacart="cd ~/carrot/customers/instacart"
-alias store="cd ~/carrot/customers/store"
-alias landing="cd ~/carrot/customers/landing"
-alias adsbackend="cd ~/carrot/ads/ads-backend"
-alias migrations="~/carrot/tools/migrations"
-alias v3="cd ~/carrot/customers/instacart"
-alias v4="cd ~/carrot/customers/customers-backend"
-alias customers-backend="cd ~/carrot/customers/customers-backend"
+alias carrot="cd ~/bento-remote-carrot"
+alias instacart="cd ~/bento-remote-carrot/customers/instacart"
+alias store="cd ~/bento-remote-carrot/customers/store"
+alias landing="cd ~/bento-remote-carrot/customers/landing"
+alias adsbackend="cd ~/bento-remote-carrot/ads/ads-backend"
+alias migrations="~/bento-remote-carrot/tools/migrations"
+alias v3="cd ~/bento-remote-carrot/customers/instacart"
+alias v4="cd ~/bento-remote-carrot/customers/customers-backend"
+alias customers-backend="cd ~/bento-remote-carrot/customers/customers-backend"
 alias v3serv="rbenv rehash && bundle exec rails s -p 3000"
-alias v4serv="rbenv rehash && bundle exec rails s -p 3030"
+alias v4serv="rbenv rehash && REQUIRED_ENGINES=graph bundle exec rails s -p 3030"
 alias cons="rbenv rehash && bundle exec rails c"
 alias hubc="rbenv rehash && bundle exec rake hub:combined"
 alias hube="rbenv rehash && bundle exec rake hub:endpoint"
