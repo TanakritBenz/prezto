@@ -143,3 +143,6 @@ function kill_rails_3030() {
   lsof -n -i :3030 | grep -E 'ruby.*LISTEN' | awk '{print $2}' | xargs kill -9 2>/dev/null || echo "No Rails server running on port 3030"
 }
 
+## Initialize fasd
+eval "$(fasd --init auto)"
+
