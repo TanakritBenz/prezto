@@ -1,3 +1,6 @@
+# .zshrc - Interactive shell configuration
+# This file is sourced only for interactive shells
+
 ## Enable Powerlevel10k instant prompt. Should stay at the top of ~/.zshrc.
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
@@ -14,68 +17,79 @@ fi
 ## Source .profile if exists
 [[ -e ~/.profile ]] && emulate sh -c 'source ~/.profile'
 
-## GitHub username - https://help.github.com/articles/remembering-your-github-username-or-email
-export GITHUB_USERNAME="TanakritBenz"
-
-## Set PATH once with all directories
-export PATH="$HOME/bin:/bin:/sbin:/usr/local/bin:/usr/bin:/usr/sbin:/usr/libexec:/opt/homebrew/bin:$PATH"
-
-## Go Lang
-GOLANG_PREFIX=$(brew --prefix golang)
-export GOPATH=$HOME/go
-export GOROOT="$GOLANG_PREFIX/libexec"
-export PATH="$PATH:$GOPATH/bin:$GOROOT/bin"
-
-## Flutter
-export PATH="$PATH:$HOME/flutter/bin"
-
 ## Initialize rbenv
 eval "$(rbenv init -)"
 
 ## Initialize nvm
-export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-export NODE_PATH=$(which node)
 
-## iterm2 shell integration
+## iTerm2 shell integration
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
-####
-## Lines configured by zsh-newuser-install
-HISTFILE=~/.histfile
-HISTSIZE=1000000 # Setting history to 1 million commands
-SAVEHIST=1000000
-#### End of lines configured by zsh-newuser-install
-
-####
-## The following lines were added by compinstall
+## Zsh configuration
 zstyle :compinstall filename "$HOME/.zshrc"
 autoload -Uz compinit
 compinit
-#### End of lines added by compinstall
 
-## Show hidden files ##
+##
+## ALIASES
+##
+
+## Show hidden files
 alias l.='ls -d .*'
 
-## A quick way to get out of current directory ##
+## Quick directory navigation
 alias ..='cd ..'
 alias .2='cd ../../'
 alias .3='cd ../../../'
 alias .4='cd ../../../../'
 alias .5='cd ../../../../../'
 
-## Colorize the grep command output for ease of use (good for log files)##
+## Colorize grep commands
 alias grep='grep --color=auto'
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
 
-## Ports
+## Process monitoring
+alias psmem='ps aux | sort -nr -k 4'
+alias psmem10='ps aux | sort -nr -k 4 | head -10'
+alias pscpu='ps aux | sort -nr -k 3'
+alias pscpu10='ps aux | sort -nr -k 3 | head -10'
+
+## Common aliases
+alias cat="bat --theme=\$(defaults read -globalDomain AppleInterfaceStyle &> /dev/null && echo default || echo GitHub)"
+alias diff='colordiff' # Don't forget to "brew install colordiff"
+alias df='df -H'
+alias du='du -ch'
+alias c="clear"
+alias j='jobs -l'
+alias vi="nvim"
+alias vim="nvim"
+
+## Git aliases
+alias g='git'
+alias gws='git status --short'
+alias gwS='git status'
+alias gdif='git diff'
+alias ga='git add'
+alias gA='git add .'
+alias gbc='git checkout -b'
+alias gcm='git commit --message'
+alias grm='git pull --rebase origin master'
+alias grc="git rebase --continue"
+
+##
+## FUNCTIONS
+##
+
+## Port management functions
 check_port() {
   if [ -n "$1" ]; then
     lsof -n -i :$1 | grep LISTEN
   fi
 }
+
 kill_port() {
     echo "Checking port $1"
     pid=$(lsof -t -i :"$1" -sTCP:LISTEN)
@@ -88,58 +102,37 @@ kill_port() {
         kill -9 $pid
     fi
 }
+
 nuke_ports() {
     for i in $(seq $1 $2); do kill_port $i; done
 }
 
-## Get top process eating memory
-alias psmem='ps aux | sort -nr -k 4'
-alias psmem10='ps aux | sort -nr -k 4 | head -10'
-
-## Get top process eating cpu ##
-alias pscpu='ps aux | sort -nr -k 3'
-alias pscpu10='ps aux | sort -nr -k 3 | head -10'
-
-## Common aliases
-alias cat="bat --theme=\$(defaults read -globalDomain AppleInterfaceStyle &> /dev/null && echo default || echo GitHub)"
-alias diff='colordiff' # Dont forget to "brew install colordiff"
-alias df='df -H'
-alias du='du -ch'
-alias c="clear"
-alias j='jobs -l'
-alias vi="nvim"
-alias vim="nvim"
-
-## Git aliases and functions
-alias g='git'
-alias gws='git status --short'
-alias gwS='git status'
-alias gdif='git diff'
-alias ga='git add'
-alias gA='git add .'
-alias gbc='git checkout -b'
-alias gcm='git commit --message'
-alias grm='git pull --rebase origin master'
-alias grc="git rebase --continue"
+## Git helper functions
 function git_current_branch() {
   git branch 2> /dev/null | sed -n -e 's/^\* \(.*\)/\1/p'
 }
+
 function current_branch() {
   git_current_branch
 }
+
 function g_last_hash() {
   git rev-parse --short HEAD
 }
+
 function gp() {
   git push origin "$(current_branch)"
 }
+
 function gpF() {
   git push -f origin "$(current_branch)"
 }
+
 function gpU() {
   git push --set-upstream origin "$(current_branch)"
 }
-function g_squash () {
+
+function g_squash() {
   if [ -n "$1" ]; then
     git reset --soft HEAD~$1 && git commit --edit -m"$(git log --format=%B --reverse HEAD..HEAD@{1})"
   fi
@@ -149,3 +142,4 @@ function g_squash () {
 function kill_rails_3030() {
   lsof -n -i :3030 | grep -E 'ruby.*LISTEN' | awk '{print $2}' | xargs kill -9 2>/dev/null || echo "No Rails server running on port 3030"
 }
+

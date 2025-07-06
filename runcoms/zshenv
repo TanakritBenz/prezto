@@ -1,11 +1,36 @@
 #
 # Defines environment variables.
-#
-# Authors:
-#   Sorin Ionescu <sorin.ionescu@gmail.com>
+# This file is sourced on every zsh invocation (interactive and non-interactive)
 #
 
 # Ensure that a non-login, non-interactive shell has a defined environment.
 if [[ ( "$SHLVL" -eq 1 && ! -o LOGIN ) && -s "${ZDOTDIR:-$HOME}/.zprofile" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprofile"
 fi
+
+# GitHub username
+export GITHUB_USERNAME="TanakritBenz"
+
+# Base PATH - set once with all directories
+export PATH="$HOME/bin:/opt/homebrew/bin:/bin:/sbin:/usr/local/bin:/usr/bin:/usr/sbin:/usr/libexec:$PATH"
+
+# Go Lang
+GOLANG_PREFIX=$(brew --prefix golang)
+export GOPATH=$HOME/go
+export GOROOT="$GOLANG_PREFIX/libexec"
+export PATH="$PATH:$GOPATH/bin:$GOROOT/bin"
+
+# Flutter & Android
+export ANDROID_SDK_ROOT="$HOME/Library/Android/sdk"
+export PATH="$PATH:$ANDROID_SDK_ROOT/platform-tools"
+export PATH="$PATH:$HOME/development/flutter/bin"
+
+# NVM directory
+export NVM_DIR="$HOME/.nvm"
+export NODE_PATH=$(which node)
+
+# Shell history settings
+HISTFILE=~/.histfile
+HISTSIZE=1000000
+SAVEHIST=1000000
+
