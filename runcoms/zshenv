@@ -28,7 +28,7 @@ export PATH="$PATH:$GOPATH/bin:$GOROOT/bin"
 ## Flutter & Android
 export ANDROID_SDK_ROOT="$HOME/Library/Android/sdk"
 export PATH="$PATH:$ANDROID_SDK_ROOT/platform-tools"
-export PATH="$PATH:$HOME/development/flutter/bin"
+export PATH="$PATH:$HOME/Dev/flutter/bin"
 
 ## Java
 export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
