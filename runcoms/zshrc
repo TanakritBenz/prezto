@@ -6,6 +6,9 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
+## Homebrew completions
+FPATH="/opt/homebrew/share/zsh/site-functions:${FPATH}"
+
 ## Source Prezto.
 if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
@@ -23,6 +26,9 @@ eval "$(rbenv init -)"
 ## Initialize nvm
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+## Initialize fasd
+eval "$(fasd --init auto)"
 
 ## iTerm2 shell integration
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
@@ -66,6 +72,7 @@ alias c="clear"
 alias j='jobs -l'
 alias vi="nvim"
 alias vim="nvim"
+alias python='python3'
 
 ## Git aliases
 alias g='git'
@@ -78,6 +85,8 @@ alias gbc='git checkout -b'
 alias gcm='git commit --message'
 alias grm='git pull --rebase origin master'
 alias grc="git rebase --continue"
+alias gco="git checkout"
+alias gb="git branch"
 
 ##
 ## FUNCTIONS
@@ -111,14 +120,8 @@ nuke_ports() {
 function git_current_branch() {
   git branch 2> /dev/null | sed -n -e 's/^\* \(.*\)/\1/p'
 }
-
-function current_branch() {
-  git_current_branch
-}
-
-function g_last_hash() {
-  git rev-parse --short HEAD
-}
+alias g_current_branch=git_current_branch
+alias current_branch=git_current_branch
 
 function gp() {
   git push origin "$(current_branch)"
@@ -132,6 +135,10 @@ function gpU() {
   git push --set-upstream origin "$(current_branch)"
 }
 
+function g_last_hash() {
+  git rev-parse --short HEAD
+}
+
 function g_squash() {
   if [ -n "$1" ]; then
     git reset --soft HEAD~$1 && git commit --edit -m"$(git log --format=%B --reverse HEAD..HEAD@{1})"
@@ -143,6 +150,29 @@ function kill_rails_3030() {
   lsof -n -i :3030 | grep -E 'ruby.*LISTEN' | awk '{print $2}' | xargs kill -9 2>/dev/null || echo "No Rails server running on port 3030"
 }
 
-## Initialize fasd
-eval "$(fasd --init auto)"
+## Ruff check and formatter
+ruff() {
+  # Default to current directory if no paths are provided
+  if [ "$#" -eq 0 ]; then
+    set -- .
+  fi
 
+  # Run Ruff check with autofix; only format if the check succeeded
+  if uv run ruff check --fix "$@"; then
+    uv run ruff format "$@"
+  else
+    return $?
+  fi
+}
+
+##
+## COMPLETIONS (third-party)
+##
+
+## Bun
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
+
+## Google Cloud SDK
+if [[ -f "$HOME/Downloads/google-cloud-sdk/completion.zsh.inc" ]]; then
+  source "$HOME/Downloads/google-cloud-sdk/completion.zsh.inc"
+fi
