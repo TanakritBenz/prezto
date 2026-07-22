@@ -27,9 +27,6 @@ eval "$(rbenv init -)"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
-## Initialize fasd
-eval "$(fasd --init auto)"
-
 ## iTerm2 shell integration
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
@@ -37,6 +34,9 @@ test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell
 zstyle :compinstall filename "$HOME/.zshrc"
 autoload -Uz compinit
 compinit
+
+## Initialize zoxide
+eval "$(zoxide init zsh)"
 
 ##
 ## ALIASES
@@ -69,7 +69,6 @@ alias diff='colordiff' # Don't forget to "brew install colordiff"
 alias df='df -H'
 alias du='du -ch'
 alias c="clear"
-alias j='jobs -l'
 alias vi="nvim"
 alias vim="nvim"
 alias python='python3'
