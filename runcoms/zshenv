@@ -56,8 +56,5 @@ fi
 ## uv/uvx Python package manager
 . "$HOME/.local/bin/env"
 
-## Claude Code
-export CLAUDE_CODE_EFFORT_LEVEL=max
-
 ## Source private secrets (API keys, tokens, etc.)
 [[ -f "$HOME/.zshenv.local" ]] && source "$HOME/.zshenv.local"
