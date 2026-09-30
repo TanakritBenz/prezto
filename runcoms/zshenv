@@ -9,7 +9,7 @@ if [[ ( "$SHLVL" -eq 1 && ! -o LOGIN ) && -s "${ZDOTDIR:-$HOME}/.zprofile" ]]; t
 fi
 
 ## Shell history settings
-HISTFILE=~/.histfile
+HISTFILE="${ZDOTDIR:-$HOME}/.zsh_history"
 HISTSIZE=1000000
 SAVEHIST=1000000
 
@@ -17,13 +17,7 @@ SAVEHIST=1000000
 export GITHUB_USERNAME="TanakritBenz"
 
 ## Base PATH
-export PATH="$HOME/bin:/opt/homebrew/bin:/bin:/sbin:/usr/local/bin:/usr/bin:/usr/sbin:/usr/libexec:$PATH"
-
-## Go
-GOLANG_PREFIX=$(brew --prefix golang)
-export GOPATH=$HOME/go
-export GOROOT="$GOLANG_PREFIX/libexec"
-export PATH="$PATH:$GOPATH/bin:$GOROOT/bin"
+export PATH="/opt/homebrew/bin:/bin:/sbin:/usr/local/bin:/usr/bin:/usr/sbin:/usr/libexec:$PATH"
 
 ## Flutter & Android
 export ANDROID_SDK_ROOT="$HOME/Library/Android/sdk"
@@ -41,17 +35,6 @@ export NODE_PATH=$(which node)
 ## Bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
-
-## Windsurf
-export PATH="/Users/benz/.codeium/windsurf/bin:$PATH"
-
-## LM Studio CLI
-export PATH="$PATH:/Users/benz/.lmstudio/bin"
-
-## Google Cloud SDK
-if [[ -f "$HOME/Downloads/google-cloud-sdk/path.zsh.inc" ]]; then
-  source "$HOME/Downloads/google-cloud-sdk/path.zsh.inc"
-fi
 
 ## uv/uvx Python package manager
 . "$HOME/.local/bin/env"

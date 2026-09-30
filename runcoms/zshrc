@@ -1,6 +1,9 @@
 # .zshrc - Interactive shell configuration
 # This file is sourced only for interactive shells
 
+# Load global keys
+[[ -f ~/.env ]] && source ~/.env
+
 ## Enable Powerlevel10k instant prompt. Should stay at the top of ~/.zshrc.
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
@@ -34,6 +37,16 @@ test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell
 zstyle :compinstall filename "$HOME/.zshrc"
 autoload -Uz compinit
 compinit
+
+## Per-tab history
+# Per-tab Up arrow / Ctrl+R: don't merge other sessions' commands into memory.
+# Commands are still appended to $HISTFILE immediately.
+unsetopt SHARE_HISTORY
+setopt INC_APPEND_HISTORY
+# `history` reads $HISTFILE in a subshell so it still lists every tab's commands
+# without leaking them into this tab's Up arrow. Defaults to `fc -l 1` (all entries).
+unalias history 2>/dev/null  # Prezto's utility module aliases it to `noglob history`
+history() { ( fc -R "$HISTFILE"; builtin fc -l "${@:-1}" ) }
 
 ## Initialize zoxide
 eval "$(zoxide init zsh)"
@@ -99,20 +112,20 @@ check_port() {
 }
 
 kill_port() {
-    echo "Checking port $1"
-    pid=$(lsof -t -i :"$1" -sTCP:LISTEN)
+  echo "Checking port $1"
+  pid=$(lsof -t -i :"$1" -sTCP:LISTEN)
 
-    if [ -z "$pid" ]
-    then
-        echo "No process found on port $1"
-    else
-        echo "Killing $pid"
-        kill -9 $pid
-    fi
+  if [ -z "$pid" ]
+  then
+    echo "No process found on port $1"
+  else
+    echo "Killing $pid"
+    kill -9 $pid
+  fi
 }
 
-nuke_ports() {
-    for i in $(seq $1 $2); do kill_port $i; done
+kill_ports() {
+  for i in $(seq $1 $2); do kill_port $i; done
 }
 
 ## Git helper functions
@@ -171,53 +184,48 @@ ruff() {
 ## Bun
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
-## Google Cloud SDK
-if [[ -f "$HOME/Downloads/google-cloud-sdk/completion.zsh.inc" ]]; then
-  source "$HOME/Downloads/google-cloud-sdk/completion.zsh.inc"
-fi
-
 # Terminal title management functions with smart auto-reset
 terminal_titles() {
-    case "$1" in
-        window)
-            echo -ne "\033]2;$2\007"
-            export TERMINAL_TITLE_MANUAL=1
-            ;;
-        tab)
-            echo -ne "\033]1;$2\007"
-            export TERMINAL_TITLE_MANUAL=1
-            ;;
-        both)
-            echo -ne "\033]0;$2\007"
-            export TERMINAL_TITLE_MANUAL=1
-            ;;
-        help)
-            echo "Usage: terminal_titles [window|tab|both|reset|auto|help] [title]"
-            echo "  window [title] - Set window title only"
-            echo "  tab [title]    - Set tab title only"
-            echo "  both [title]   - Set both window and tab to same title"
-            echo "  reset          - Reset to default titles"
-            echo "  auto           - Enable auto-reset after commands"
-            echo "  help           - Show this help message"
-            echo "  (no args)      - Same as reset"
-            ;;
-        auto)
-            unset TERMINAL_TITLE_MANUAL
-            terminal_titles reset
-            echo "Auto-reset enabled"
-            ;;
-        reset|"")
-            # Window title: full path with ~ for home
-            echo -ne "\033]2;${PWD/#$HOME/~}\007"
-            # Tab title: last portion of the full path
-            echo -ne "\033]1;${PWD##*/}\007"
-            unset TERMINAL_TITLE_MANUAL
-            ;;
-        *)
-            echo "Unknown command: $1"
-            echo "Use 'terminal_titles help' for usage"
-            ;;
-    esac
+  case "$1" in
+    window)
+      echo -ne "\033]2;$2\007"
+      export TERMINAL_TITLE_MANUAL=1
+      ;;
+    tab)
+      echo -ne "\033]1;$2\007"
+      export TERMINAL_TITLE_MANUAL=1
+      ;;
+    both)
+      echo -ne "\033]0;$2\007"
+      export TERMINAL_TITLE_MANUAL=1
+      ;;
+    help)
+      echo "Usage: terminal_titles [window|tab|both|reset|auto|help] [title]"
+      echo "  window [title] - Set window title only"
+      echo "  tab [title]    - Set tab title only"
+      echo "  both [title]   - Set both window and tab to same title"
+      echo "  reset          - Reset to default titles"
+      echo "  auto           - Enable auto-reset after commands"
+      echo "  help           - Show this help message"
+      echo "  (no args)      - Same as reset"
+      ;;
+    auto)
+      unset TERMINAL_TITLE_MANUAL
+      terminal_titles reset
+      echo "Auto-reset enabled"
+      ;;
+    reset|"")
+      # Window title: full path with ~ for home
+      echo -ne "\033]2;${PWD/#$HOME/~}\007"
+      # Tab title: last portion of the full path
+      echo -ne "\033]1;${PWD##*/}\007"
+      unset TERMINAL_TITLE_MANUAL
+      ;;
+    *)
+      echo "Unknown command: $1"
+      echo "Use 'terminal_titles help' for usage"
+      ;;
+  esac
 }
 
 # Alias for convenience
@@ -225,14 +233,22 @@ alias tt='terminal_titles'
 
 # Auto-reset after commands ONLY if not manually set (for zsh)
 if [[ -n "$ZSH_VERSION" ]]; then
-    precmd() {
-        # Only reset if titles weren't manually set
-        if [[ -z "$TERMINAL_TITLE_MANUAL" ]]; then
-            # Window title: full path with ~ for home
-            echo -ne "\033]2;${PWD/#$HOME/~}\007"
-            # Tab title: last portion of the full path
-            echo -ne "\033]1;${PWD##*/}\007"
-        fi
-    }
+  precmd() {
+    # Only reset if titles weren't manually set
+    if [[ -z "$TERMINAL_TITLE_MANUAL" ]]; then
+      # Window title: full path with ~ for home
+      echo -ne "\033]2;${PWD/#$HOME/~}\007"
+      # Tab title: last portion of the full path
+      echo -ne "\033]1;${PWD##*/}\007"
+    fi
+  }
 fi
 
+# bun completions
+[ -s "/Users/benz/.bun/_bun" ] && source "/Users/benz/.bun/_bun"
+
+# Oh My Pi completions
+eval "$(omp completions zsh)"
+
+# Clear the characters before the current cursor position in Zsh
+bindkey '^U' backward-kill-line

@@ -96,7 +96,7 @@ zstyle ':prezto:module:editor' key-bindings 'emacs'
 #
 
 # Set the file to save the history in when an interactive shell exits.
-# zstyle ':prezto:module:history' histfile "${ZDOTDIR:-$HOME}/.zsh_history"
+zstyle ':prezto:module:history' histfile "${ZDOTDIR:-$HOME}/.zsh_history"
 
 # Set the maximum  number  of  events  stored  in  the  internal history list.
 # zstyle ':prezto:module:history' histsize 10000
@@ -134,7 +134,7 @@ zstyle ':prezto:module:editor' key-bindings 'emacs'
 #
 
 # Set the keyword used by `mand` to open man pages in Dash.app
-zstyle ':prezto:module:osx:man' dash-keyword 'manpages'
+# zstyle ':prezto:module:osx:man' dash-keyword 'manpages'
 
 #
 # Pacman
